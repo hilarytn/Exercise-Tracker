@@ -31,7 +31,10 @@ app.post('/api/users', async (req, res) => {
         const newUser = new User({username})
 
         const savedUser = await newUser.save()
-        res.status(201).json(savedUser)
+        res.status(201).json({
+            username: savedUser.username,
+            _id: savedUser._id
+          })
     } catch(error) {
         res.status(500).json({error: error.message })
     }
@@ -40,7 +43,7 @@ app.post('/api/users', async (req, res) => {
 app.get('/api/users', async (req, res) => {
     try {
 
-        const listUsers = await User.find({})
+        const listUsers = await User.find({}, 'username _id')
         if(!listUsers) {
             res.status(404).json({error: 'No users found'})
         }
