@@ -3,19 +3,26 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import User from './models/User.js'
 import connectDB from './config/db.js'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+
 const app = express()
+
 
 dotenv.config()
 
 connectDB()
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 app.use(cors())
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/views/index.html')
-});
+    res.sendFile(__dirname + '/views/index.html');
+  })
 
 
 app.post('/api/users', async (req, res) => {
@@ -33,7 +40,7 @@ app.post('/api/users', async (req, res) => {
 app.get('/api/users', async (req, res) => {
     try {
 
-        const listUsers = await User.find({User})
+        const listUsers = await User.find({})
         if(!listUsers) {
             res.status(404).json({error: 'No users found'})
         }
@@ -45,11 +52,11 @@ app.get('/api/users', async (req, res) => {
 
 
 app.post('/api/users/:id/exercises', async(req, res) => {
-    const {description, duration, date} = req.body
+    const {id, description, duration, date} = req.body
     const userId = req.params.id
     try {
         const updatedUser = await User.findOneAndUpdate(
-            { userId },
+            { id },
             { $push: { log: { description, duration, date } } },
             { new: true }
           );
@@ -57,7 +64,7 @@ app.post('/api/users/:id/exercises', async(req, res) => {
         if (!updatedUser) {
             return res.status(404).json({ error: 'User not found' });
           }
-          
+
         res.status(201).json({updatedUser})
     } catch(error) {
         res.status(500).json({error: error.message })
