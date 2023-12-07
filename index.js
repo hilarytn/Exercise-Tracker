@@ -56,11 +56,12 @@ app.get('/api/users', async (req, res) => {
 
 app.post('/api/users/:id/exercises', async(req, res) => {
     const {id, description, duration, date} = req.body
-    const userId = req.params.id
+
     try {
+        const exerciseDate = date ? new Date(date) : new Date();
         const updatedUser = await User.findOneAndUpdate(
             { id },
-            { $push: { log: { description, duration, date } } },
+            { $push: { log: { description, duration, date: exerciseDate.toDateString() } } },
             { new: true }
           );
 
